@@ -1,206 +1,246 @@
-# Swerve 2026 — WPILib + Phoenix 6
+# Swerve 2026 - WPILib, Phoenix 6, PathPlanner e MapleSim
 
-Base em Java para simular e evoluir um drivetrain swerve com Phoenix 6, três Limelights,
-MegaTag2, histórico de odometria, estados da Superstructure e PathPlanner.
+Base Java para o drivetrain do robo descrito pelo time. O projeto foi organizado para separar o
+codigo diretamente ligado aos subsistemas das ferramentas reutilizaveis de swerve.
 
-> **Segurança:** IDs, offsets, reduções, massa, momento de inércia, atrito, dimensões e poses das
-> câmeras ainda são exemplos. O projeto continua bloqueado no robô real enquanto
-> `TunerConstants.HARDWARE_CONFIGURED` for `false`.
+## Hardware conhecido
 
-## O que está integrado
+- Modulos SDS MK5n, reducao R3 confirmada: `5.27:1`.
+- Rodas MK5n originais, diametro nominal de 4 polegadas.
+- Kraken X60 no drive e Kraken X44 no steer.
+- Um CANcoder por modulo e Pigeon 2.0.
+- CANivore dedicado ao swerve.
+- REV PDH; ID CAN provisoriamente `1`.
+- Massa informada: `51.79 kg`.
+- Baterias entre `12.3 V` e `12.4 V` no uso, ate `12.7 V` em excelente estado.
+- Tres Limelight 4 com HALO: frente, esquerda e direita.
 
-- Controle field-centric e simulação nativa do swerve Phoenix 6.
-- Três Limelights configuráveis: frontal, esquerda e direita.
-- Leitura MegaTag2 diretamente por NetworkTables (`botpose_orb_wpiblue`).
-- Simulação geométrica de FOV, alcance, latência e IDs de AprilTags visíveis.
-- Filtro de confiabilidade antes de cada `addVisionMeasurement`.
-- Desvio-padrão XY dinâmico por distância e quantidade de tags; heading vem do Pigeon.
-- Histórico circular de pose e velocidades a cada 20 ms por dois segundos.
-- Monitor conservador de impacto, bloqueio e possível derrapagem.
-- Solver de estados com X-lock durante pontuação ou bloqueio confirmado.
-- PathPlanner 2026.1.2 com feedforwards de força por módulo.
-- Monitor de intervalo do loop, memória Java, temperatura e saúde/utilização CAN.
-- Telemetria limitada em frequência para reduzir CPU, GC e tráfego de NetworkTables.
+O R3 tem velocidade livre teorica de 19.2 ft/s, aproximadamente `5.852 m/s` com X60 FOC. O
+controle do piloto esta inicialmente limitado a `4.5 m/s`; velocidade teorica nao e velocidade
+segura garantida no carpete.
 
-## Arquivos de configuração
+## Bloqueio do robo real
 
-- `config/ConfigSwerve.java`: velocidades, deadband, simulação e perfis da Superstructure.
-- `config/ConfigVision.java`: nomes, transforms, FOV e todos os gates das câmeras.
-- `config/ConfigLocalization.java`: colisão, histórico, X-lock, PathPlanner e desempenho.
-- `generated/TunerConstants.java`: hardware do swerve; deve ser regenerado no Phoenix Tuner X.
-- `src/main/deploy/pathplanner/settings.json`: modelo físico usado pelo PathPlanner.
+O programa permanece deliberadamente bloqueado no robo real. A simulacao usa placeholders, mas
+`SwerveHardwareConfig.isReadyForRealHardware()` so libera o hardware depois de confirmar:
 
-## Limelights e MegaTag2
+1. distancia longitudinal e lateral entre os centros dos modulos;
+2. comprimento e largura externos dos bumpers;
+3. IDs CAN dos oito motores, quatro CANcoders, Pigeon e PDH;
+4. offset absoluto dos quatro CANcoders;
+5. transform 3D de cada Limelight em relacao ao centro do robo;
+6. limites de corrente e corrente de slip medidos;
+7. ganhos de drive e steer validados por SysId e testes.
+8. coupling ratio `54/16` confirmado no Tuner X.
 
-Os nomes configurados são:
+Tambem precisamos confirmar o tipo exato da roda original instalada, o ID do PDH e se existe
+licenca Phoenix Pro. Enquanto a licenca nao for confirmada, o codigo usa `RemoteCANcoder`;
+`FusedCANcoder` so e selecionado por configuracao explicita.
+
+## Arquitetura
+
+```text
+frc/robot/
+  lib/swerve/
+    characterization/  SysId e raio efetivo
+    config/             hardware, visao, controle e localizacao
+    control/            setpoints, X-lock e DriveToPose
+    diagnostics/        CAN, PDH, motores, CANcoders, loop e memoria
+    hardware/           constantes Phoenix/Tuner X
+    localization/       historico, colisao, slip e recuperacao
+    logging/            telemetria CTRE/NT/Hoot
+    simulation/         MapleSim e injecao de falhas
+    state/              RobotState central com historico fixo
+    vision/             IO, confiabilidade, consenso e simulacao
+  subsystems/
+    swerve/              somente o subsystem do drivetrain
+    vision/              fusao das tres Limelights
+    superstructure/      goals e sequencias de alto nivel
+```
+
+## Precisao do swerve
+
+`SwerveHardwareConfig` separa raio nominal e raio efetivo. A reducao mecanica continua em 5.27; a
+correcao por desgaste/compressao deve alterar `EFFECTIVE_WHEEL_RADIUS_SCALE` somente depois da
+caracterizacao no robo.
+
+O teleop usa `SwerveSetpointGenerator` do PathPlanner. Ele recebe a tensao atual da bateria e limita
+a transicao entre estados de modulo, evitando pedir instantaneamente aceleracoes e angulos
+impossiveis. Se `RobotConfig` nao puder ser carregado, a protecao faz bypass explicito e publica
+`Swerve/SetpointGeneratorEnabled=false`.
+
+O modelo do PathPlanner ja usa massa de 51.79 kg, roda de 0.0508 m, R3 e velocidade teorica de
+5.85216 m/s. MOI, geometria e tamanho do robo continuam provisiorios; portanto os feedforwards nao
+devem ser considerados calibrados.
+
+## Superstructure e score
+
+Goals existentes:
+
+- `IDLE`
+- `COLLECTING`
+- `HOLDING_GAME_PIECE`
+- `ALIGNING_TO_SCORE`
+- `READY_TO_SCORE`
+- `SCORING`
+- `SCORE_COMPLETE`
+- `CLIMBING`
+
+`Superstructure.alignAndScoreCommand(...)` executa o `DriveToPose`, exige erro pequeno de posicao e
+heading, baixa velocidade e estabilidade por 200 ms. Somente depois entra em `READY_TO_SCORE` e
+`SCORING`, quando o solver aplica X-lock. Assim o robo nao trava as rodas antes de terminar o
+alinhamento. Ainda faltam as poses reais de score do jogo/mecanismo para ligar essa sequencia aos
+botoes.
+
+## Tres Limelights e MegaTag2
+
+Nomes atuais:
 
 - `limelight-front`
 - `limelight-left`
 - `limelight-right`
 
-O código envia a pose robot-space da câmera e `robot_orientation_set` em cada atualização. A
-origem de pose permanece sempre no lado azul, como exigido pelo MegaTag2; o PathPlanner faz apenas
-o espelhamento da trajetória quando a aliança é vermelha.
+Cada frame passa por gates de timestamp, tag conhecida, distancia, ambiguidade, limites do campo,
+altura Z, roll/pitch, giro do robo e inovacao contra a pose atual. Na convencao WPILib, altura e Z,
+nao Y.
 
-As transforms atuais são provisórias. Meça cada câmera a partir do centro geométrico do robô usando
-a convenção WPILib: `+X` para frente, `+Y` para a esquerda, `+Z` para cima e yaw positivo
-anti-horário. Um erro de poucos centímetros ou graus aqui aparece diretamente como erro sistemático
-de pose.
+As cameras nao sao mais fundidas como tres sensores independentes no mesmo instante:
 
-Antes do robô real:
+- duas ou tres cameras que concordam geram uma unica pose ponderada;
+- uma camera plausivel e aceita com desvio-padrao aumentado;
+- cameras simultaneas que discordam bloqueiam a fusao daquele ciclo;
+- heading visual recebe incerteza muito alta; Pigeon/odometria continuam como fonte angular;
+- heartbeat parado por mais de 500 ms marca a camera desconectada.
 
-1. Configure a mesma família/mapa de AprilTags 2026 nas três Limelights.
-2. Confirme os nomes de NetworkTables e o IP de cada câmera.
-3. Meça as transforms e altere `ConfigVision`.
-4. Verifique exposição, ganho, foco e latência individualmente.
-5. Compare a pose de cada câmera parada em vários pontos do campo antes de habilitar fusão em auto.
+As transforms atuais sao apenas para simulacao. Medir em metros a partir do centro do robo:
+`+X` frente, `+Y` esquerda, `+Z` cima, roll em X, pitch em Y e yaw em Z.
 
-### Filtro de confiabilidade
+## Odometria, colisao e recuperacao
 
-Um frame é rejeitado se tiver tag desconhecida, timestamp velho/futuro, pose fora do campo,
-altura `Z` impossível, roll/pitch impossível, distância fora do limite, ambiguidade alta, rotação
-rápida ou inovação de pose excessiva. Embora a interface da Limelight às vezes seja descrita como
-“altura Y”, na convenção 3D da WPILib a altura do robô é **Z**.
+Um Pigeon nao mede velocidade translacional. Em 2.7 m/s constantes, aceleracao proxima de zero e
+normal. O detector combina:
 
-O heading do MegaTag2 recebe desvio-padrão muito alto. Assim, as câmeras corrigem principalmente
-X/Y e o Pigeon 2 continua sendo a fonte de rotação. Os números atuais são conservadores e devem ser
-ajustados somente a partir de logs do robô real.
+- velocidade pedida e medida pelas rodas;
+- impacto e jerk do Pigeon;
+- divergencia entre aceleracao inferida pelas rodas e aceleracao do IMU;
+- bias lento de aceleracao aprendido somente quando o robo esta parado.
 
-## Simulação das três câmeras
+Uma confianca continua e publicada em `OdometryHealth/CollisionConfidence`. O estado so vira
+`BLOCKED` depois de debounce; nesse estado o solver e o PathPlanner usam X-lock. O rollback
+automatico permanece desligado porque outro robo pode realmente deslocar o chassi.
 
-`LimelightSimulation` calcula a pose de cada câmera, testa distância, FOV e lado visível da tag,
-adiciona ruído determinístico e publica as mesmas chaves NT usadas pelo hardware. Ela não simula
-pixels, iluminação, motion blur nem oclusão por peças/outros robôs.
+O historico circular salva pose e velocidades a cada 20 ms, sem crescer memoria. A pose anterior ao
+impacto e reconstruida por integracao robot-relative e pode ser aplicada manualmente com `Back`,
+desde que esteja a menos de 0.50 m da pose atual. `RobotState` mantem um segundo historico central
+para diagnostico temporal e futura reproducao de eventos.
 
-No AdvantageScope/Elastic, observe:
+## Simulacao MapleSim
 
-- `/VisionSim/limelight-front/VisibleTagIds`
-- `/VisionSim/limelight-left/VisibleTagIds`
-- `/VisionSim/limelight-right/VisibleTagIds`
-- `/Vision/<camera>/Accepted`, `Reason`, `Confidence` e `AverageDistanceMeters`
+No desktop, o MapleSim substitui o integrador simples da Phoenix e injeta estados nos TalonFX,
+CANcoders e Pigeon. O modelo usa:
 
-Isso permite testar qual câmera deveria ver cada tag e por que um frame foi aceito ou rejeitado.
+- massa de 51.79 kg;
+- Kraken X60 FOC e Kraken X44 FOC;
+- R3, roda nominal de 4 polegadas e atrito provisoriamente 1.20;
+- geometria dos centros dos modulos;
+- bumpers provisoriamente 30 x 30 polegadas.
 
-## Colisão, histórico e recuperação
+O JSON oficial do MapleSim consultado em agosto de 2026 referencia
+`0.4.0-beta-obstacles-fix`, mas o Maven oficial nao publica esse artefato. O projeto fixa
+`0.4.0-beta`, que e a ultima versao realmente listada no metadata oficial. Revise essa divergencia
+antes de atualizar a dependencia.
 
-O Pigeon 2 mede aceleração linear e velocidade angular; ele **não mede velocidade translacional**.
-Em velocidade constante de 2,7 m/s é normal o acelerômetro medir aproximadamente zero. Portanto,
-“comando 2,7 m/s + aceleração zero” não prova que o robô está bloqueado.
+Falhas podem ser injetadas por NetworkTables:
 
-O monitor combina impacto/jerk, velocidade pedida, velocidade estimada pelas rodas e divergência
-entre aceleração das rodas e IMU. Mesmo assim, uma roda girando contra uma parede pode enganar a
-odometria. Quando há bloqueio confirmado, o solver aplica X-lock. Após o piloto soltar a translação
-e o IMU estabilizar, o estado volta por `RECOVERING` até `NOMINAL`.
+- `/SimulationFaults/VisionDropoutAll`
+- `/SimulationFaults/VisionOutlierXMeters`
+- `/SimulationFaults/ExtraVisionLatencyMilliseconds`
+- `/SimulationFaults/CANcoderOffsetRotations`
 
-O buffer salva pose e velocidades a cada 20 ms. Ao detectar impacto, uma pose anterior é reconstruída
-integrando velocidades robot-relative até antes da amostra suspeita. O rollback automático está
-desligado por padrão, pois outro robô pode realmente deslocar o chassi e voltar a uma pose antiga
-pioraria o erro. O botão **Back** aplica manualmente a pose recomendada somente se ela estiver dentro
-do limite configurado.
+A simulacao geometrica das Limelights calcula tags dentro do FOV e alcance e publica as mesmas
+chaves consumidas pelo IO real. Ela nao modela pixels, reflexos, motion blur, exposicao, HALO,
+oclusao por outro robo nem deformacao estrutural.
 
-Durante um bloqueio, a saída do PathPlanner fica em X-lock, mas o relógio interno da trajetória
-continua avançando. Bloqueios longos devem cancelar/selecionar uma rotina de recuperação futura em
-vez de tentar alcançar agressivamente o ponto já avançado.
+## Logs e saude
 
-## PathPlanner
+Tres camadas sao iniciadas:
 
-O `AutoBuilder` usa:
+- WPILib DataLog para Driver Station, joystick, comandos e NetworkTables;
+- CTRE SignalLogger/Hoot para sinais Phoenix e SysId;
+- topicos estruturados de pose, chassis e modulos para AdvantageScope.
 
-- pose e velocidades robot-relative do estimador Phoenix;
-- reset de pose com origem azul;
-- `PPHolonomicDriveController`;
-- feedforwards X/Y de força do PathPlanner enviados a `ApplyRobotSpeeds`;
-- espelhamento para a aliança vermelha;
-- interlock do monitor de colisão.
+Diagnosticos a 5 Hz registram corrente supply/stator, tensao, temperatura, erro de velocidade e
+angulo, posicao absoluta e `MagnetHealth` de cada modulo, alem de tensao/corrente/temperatura do PDH.
+Telemetria pesada continua limitada para proteger CPU, GC e CAN. O monitor observa atraso do loop,
+temperatura da roboRIO, memoria Java, utilizacao, bus-off, TX-full, REC e TEC do barramento.
 
-Abra a pasta `Swerve` no PathPlanner e crie arquivos em `src/main/deploy/pathplanner`. Os autos
-aparecem automaticamente no chooser `Autonomo`.
+O CANivore e selecionado por `*` no robo real, adequado quando existe somente um CANivore. A
+simulacao usa `rio`. Se outro CANivore for instalado, troque `*` pelo nome confirmado para evitar
+selecionar o barramento errado.
 
-Os valores em `settings.json` são exemplos. Antes de confiar em uma trajetória, meça massa, MOI,
-posição dos módulos, raio efetivo da roda, corrente, coeficiente de atrito e velocidade máxima. Um
-modelo físico errado pode fazer os feedforwards piorarem a trajetória; nesse caso, valide primeiro
-sem feedforward e corrija as unidades/medições.
+## Caracterizacao
 
-## CPU, GC e CAN
+Os comandos aparecem em `Swerve/Characterization` e sao bloqueados fora de Test Mode:
 
-Não existe aqui uma leitura portátil e confiável de “CPU %” da roboRIO. Em vez disso, o monitor
-publica proxies úteis:
+- SysId de translacao;
+- SysId de steer;
+- SysId de rotacao;
+- caracterizacao do raio efetivo por rotacao de oito segundos.
 
-- maior intervalo recente do loop principal;
-- temperatura da CPU;
-- memória usada pela JVM;
-- utilização, bus-off, TX-full, REC e TEC do barramento CAN.
+Execute em area aberta, sobre o piso de competicao, com bumpers, massa final e bateria observada.
+Tenha uma pessoa no E-stop. O resultado do raio e apenas registrado; ele nao reescreve constantes
+automaticamente.
 
-A telemetria pesada do swerve foi reduzida para 20 Hz, visão roda a 30 Hz e dashboards de visão a
-10 Hz. As Limelights fazem o processamento de imagem, deixando a roboRIO apenas validar e fundir
-poses. O código também reutiliza requests Phoenix e sinais Pigeon, evitando alocações no loop de
-odometria.
+Ordem recomendada no hardware:
 
-Use os alertas como sintomas, não como diagnóstico final. Mantenha CAN abaixo de aproximadamente
-85% em operação normal, investigue loops acima de 30 ms e confirme tudo com logs de uma partida.
-
-## Checklist de precisão no hardware
-
-1. Gere novamente o swerve no Phoenix Tuner X 2026.
-2. Calibre o zero absoluto de cada CANcoder com rodas mecanicamente alinhadas.
-3. Confirme direção, inversão, magnet health e ausência de saltos no sinal absoluto.
-4. Use `FusedCANcoder`, mas confira a relação steer/encoder e o mecanismo sem folga excessiva.
-5. Meça o raio **efetivo** das rodas pelo deslocamento real, não apenas pelo diâmetro nominal.
-6. Faça SysId de drive, steer e rotação com bateria carregada e massa final do robô.
-7. Calibre montagem, orientação e bias do Pigeon 2; monte-o rigidamente longe de vibração excessiva.
-8. Verifique corrente de slip, corrente de alimentação e queda de tensão sob carga.
-9. Use CANivore para o swerve quando disponível e ajuste frequências de status sem passar de 85%.
-10. Faça testes repetidos de ida/volta e rotação; se o erro cresce com distância, revise raio/redução;
-    se cresce com giro, revise posições dos módulos, coupling e gyro.
-11. Só depois ajuste covariâncias de visão, gates e ganhos do PathPlanner.
-
-Encoders extras raramente corrigem uma geometria/calibração ruim. Antes de adicionar sensores,
-registre erros de módulo, CANcoder, Pigeon e visão para identificar qual grandeza realmente deriva.
+1. validar IDs, inversoes e barramento no Phoenix Tuner X;
+2. alinhar mecanicamente as rodas e gravar offsets dos CANcoders;
+3. conferir `MagnetHealth` e saltos do absoluto por uma volta completa;
+4. medir geometria dos modulos e bumpers;
+5. validar Pigeon rigidamente montado, orientacao e bias;
+6. caracterizar raio efetivo, drive, steer e rotacao;
+7. medir slip current e queda de tensao;
+8. ajustar setpoints e PathPlanner;
+9. medir as tres cameras e validar cada uma isoladamente;
+10. habilitar consenso e repetir trajetorias em varios pontos do campo.
 
 ## Executar
 
 No terminal WPILib, dentro da pasta `Swerve`:
 
 ```powershell
-.\gradlew.bat build
+.\gradlew.bat clean test
 .\gradlew.bat simulateJava
 ```
 
-Selecione `Autonomous` no Sim Driver Station, escolha a rotina em `Autonomo` e habilite. No
-AdvantageScope, adicione `Swerve/Pose`, `Swerve/ModuleStates`, `Swerve/ModuleTargets` e os tópicos de
-visão descritos acima.
+Controles atuais:
 
-## Controles
+- analogico esquerdo: translacao;
+- analogico direito X: rotacao;
+- `A`: X-lock manual;
+- `B`: aponta os modulos;
+- `LB`: redefine a frente field-centric;
+- `Back`: aplica recuperacao historica recomendada;
+- `RT`: coleta/segura peca simulada;
+- `LT`: testa `READY_TO_SCORE` e X-lock;
+- `Y`: climbing;
+- `X`: idle;
+- `RB`: simula posse de peca.
 
-- Analógico esquerdo: translação.
-- Analógico direito X: rotação.
-- A: freio em X.
-- B: apontar módulos na direção do analógico esquerdo.
-- LB: redefinir a frente field-centric.
-- Back: aplicar manualmente uma pose histórica recomendada.
-- RT: `COLLECTING`; ao soltar, `HOLDING_GAME_PIECE`.
-- LT: `SCORING` com X-lock; ao soltar, `IDLE`.
-- Y: `CLIMBING`.
-- X: `IDLE`.
-- RB: simular posse de peça.
+## Referencias
 
-## Fontes estudadas
-
-- [Liposor/Odometry](https://github.com/Liposor/Odometry) — ideias de filtragem mecânica; o
-  repositório contém descrição, mas não uma implementação verificável.
-- [Limelight MegaTag2](https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2)
-  e [API NetworkTables](https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api).
-- [WPILib Pose Estimators](https://docs.wpilib.org/en/stable/docs/software/advanced-controls/state-space/state-space-pose-estimators.html)
-  e [AprilTags](https://docs.wpilib.org/en/stable/docs/software/vision-processing/apriltag/index.html).
+- [SDS MK5n](https://www.swervedrivespecialties.com/products/mk5n-swerve-module)
 - [CTRE Phoenix 6 Swerve](https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/mechanisms/swerve/swerve-overview.html)
-  e [Status Signals](https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/status-signals.html).
-- [PathPlanner AutoBuilder](https://pathplanner.dev/pplib-build-an-auto.html) e
-  [Robot Config](https://pathplanner.dev/robot-config.html).
-- [Citrus Circuits 2026](https://github.com/frc1678/C2026-Public),
-  [Citrus Circuits 2025](https://github.com/frc1678/C2025-Public),
-  [Team 254 2025](https://github.com/Team254/FRC-2025-Public),
-  [Team 2910 2025](https://github.com/FRCTeam2910/2025CompetitionRobot-Public) e
-  [MapleSim](https://github.com/Team254/maple-sim).
+- [Limelight MegaTag2](https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2)
+- [PathPlanner](https://pathplanner.dev/pplib-build-an-auto.html)
+- [WPILib](https://docs.wpilib.org/en/stable/index.html)
+- [MapleSim](https://github.com/Shenzhen-Robotics-Alliance/maple-sim)
+- [Citrus Circuits 2026](https://github.com/frc1678/C2026-Public)
+- [Citrus Circuits 2025](https://github.com/frc1678/C2025-Public)
+- [Team 254 2025](https://github.com/Team254/FRC-2025-Public)
+- [Team 2910 2025](https://github.com/FRCTeam2910/2025CompetitionRobot-Public)
+- [Liposor/Odometry](https://github.com/Liposor/Odometry)
 
-Os repositórios de equipes foram usados como referência de arquitetura, não como prova de que os
-mesmos ganhos, filtros ou modelo físico funcionarão neste robô.
+Os repositorios de equipes serviram como referencias de arquitetura: estado central e buffers de
+tempo, readiness de alinhamento, telemetria por modulo e testes de visao. Ganhos e thresholds nao
+foram copiados como se fossem universais; todos continuam sujeitos a validacao nos logs deste robo.

@@ -10,24 +10,32 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.config.ConfigSwerve;
-import frc.robot.config.ConfigSwerve.DriveProfile;
-import frc.robot.generated.TunerConstants;
-import frc.robot.localization.OdometryHealthMonitor;
-import frc.robot.localization.SwerveStateSolver;
-import frc.robot.localization.SwerveStateSolver.DriveState;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.Goal;
-import frc.robot.util.PerformanceMonitor;
-import frc.robot.vision.LimelightSimulation;
-import frc.robot.vision.VisionSubsystem;
+import frc.robot.lib.swerve.config.ConfigSwerve;
+import frc.robot.lib.swerve.characterization.SwerveCharacterization;
+import frc.robot.lib.swerve.config.ConfigSwerve.DriveProfile;
+import frc.robot.lib.swerve.control.SwerveStateSolver;
+import frc.robot.lib.swerve.control.SwerveSetpointController;
+import frc.robot.lib.swerve.control.SwerveStateSolver.DriveState;
+import frc.robot.lib.swerve.diagnostics.PerformanceMonitor;
+import frc.robot.lib.swerve.diagnostics.SwerveDiagnostics;
+import frc.robot.lib.swerve.hardware.TunerConstants;
+import frc.robot.lib.swerve.localization.OdometryHealthMonitor;
+import frc.robot.lib.swerve.logging.SwerveTelemetry;
+import frc.robot.lib.swerve.state.RobotState;
+import frc.robot.lib.swerve.vision.LimelightSimulation;
+import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.Superstructure.Goal;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class RobotContainer {
   private final double maxSpeedMetersPerSecond =
@@ -37,26 +45,40 @@ public class RobotContainer {
 
   private final CommandXboxController driverController = new CommandXboxController(0);
 
-  private final SwerveRequest.FieldCentric fieldCentricDrive =
-      new SwerveRequest.FieldCentric()
-          .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  private final SwerveRequest.ApplyRobotSpeeds teleopDrive =
+      new SwerveRequest.ApplyRobotSpeeds()
+          .withDriveRequestType(DriveRequestType.Velocity);
   private final SwerveRequest.SwerveDriveBrake brake =
       new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt pointWheels =
       new SwerveRequest.PointWheelsAt();
   private final SwerveRequest.Idle idle = new SwerveRequest.Idle();
 
-  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  public final SwerveSubsystem drivetrain = TunerConstants.createDrivetrain();
   public final Superstructure superstructure = new Superstructure();
   public final OdometryHealthMonitor odometryHealth = new OdometryHealthMonitor(drivetrain);
   public final LimelightSimulation limelightSimulation =
       new LimelightSimulation(() -> drivetrain.getState().Pose);
   public final VisionSubsystem vision = new VisionSubsystem(drivetrain);
   public final PerformanceMonitor performanceMonitor = new PerformanceMonitor();
+  public final SwerveDiagnostics swerveDiagnostics = new SwerveDiagnostics(drivetrain);
+  public final RobotState robotState =
+      new RobotState(
+          () -> drivetrain.getState().Pose,
+          () -> drivetrain.getState().Speeds,
+          () -> odometryHealth.getHealthState().name(),
+          () -> superstructure.getGoal().name());
+  public final SwerveCharacterization characterization =
+      new SwerveCharacterization(drivetrain);
 
   private final SwerveStateSolver swerveStateSolver = new SwerveStateSolver();
+  private final SwerveSetpointController setpointController =
+      new SwerveSetpointController(
+          drivetrain.getPathPlannerRobotConfig(),
+          drivetrain.getKinematics(),
+          drivetrain.getState().Speeds);
   private DriveState lastPublishedDriveState;
-  private final Telemetry telemetry = new Telemetry();
+  private final SwerveTelemetry telemetry = new SwerveTelemetry();
   private final SendableChooser<Command> autonomousChooser;
 
   public RobotContainer() {
@@ -68,6 +90,35 @@ public class RobotContainer {
 
     SmartDashboard.putBoolean(
         "Swerve/HardwareConfigured", TunerConstants.HARDWARE_CONFIGURED);
+    SmartDashboard.putBoolean("Swerve/SetpointGeneratorEnabled", setpointController.isEnabled());
+    publishCharacterizationCommands();
+  }
+
+  private void publishCharacterizationCommands() {
+    SmartDashboard.putData(
+        "Swerve/Characterization/TranslationQSForward",
+        characterization.translationQuasistatic(Direction.kForward));
+    SmartDashboard.putData(
+        "Swerve/Characterization/TranslationQSReverse",
+        characterization.translationQuasistatic(Direction.kReverse));
+    SmartDashboard.putData(
+        "Swerve/Characterization/TranslationDynamicForward",
+        characterization.translationDynamic(Direction.kForward));
+    SmartDashboard.putData(
+        "Swerve/Characterization/SteerQSForward",
+        characterization.steerQuasistatic(Direction.kForward));
+    SmartDashboard.putData(
+        "Swerve/Characterization/SteerDynamicForward",
+        characterization.steerDynamic(Direction.kForward));
+    SmartDashboard.putData(
+        "Swerve/Characterization/RotationQSForward",
+        characterization.rotationQuasistatic(Direction.kForward));
+    SmartDashboard.putData(
+        "Swerve/Characterization/RotationDynamicForward",
+        characterization.rotationDynamic(Direction.kForward));
+    SmartDashboard.putData(
+        "Swerve/Characterization/WheelRadius",
+        characterization.wheelRadius());
   }
 
   private void configureBindings() {
@@ -101,13 +152,28 @@ public class RobotContainer {
                 SmartDashboard.putString("Swerve/SolverState", driveState.name());
               }
               if (driveState != DriveState.NORMAL) {
+                setpointController.reset(
+                    drivetrain.getState().Speeds, drivetrain.getKinematics());
                 return brake;
               }
 
-              return fieldCentricDrive
-                  .withVelocityX(velocityX)
-                  .withVelocityY(velocityY)
-                  .withRotationalRate(rotationalRate);
+              Translation2d fieldVelocity =
+                  new Translation2d(velocityX, velocityY)
+                      .rotateBy(drivetrain.getOperatorForwardDirection());
+              ChassisSpeeds desiredRobotRelative =
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      fieldVelocity.getX(),
+                      fieldVelocity.getY(),
+                      rotationalRate,
+                      drivetrain.getState().Pose.getRotation());
+              var setpoint = setpointController.calculate(desiredRobotRelative);
+              odometryHealth.setRequestedSpeeds(setpoint.robotRelativeSpeeds());
+              return teleopDrive
+                  .withSpeeds(setpoint.robotRelativeSpeeds())
+                  .withWheelForceFeedforwardsX(
+                      setpoint.feedforwards().robotRelativeForcesXNewtons())
+                  .withWheelForceFeedforwardsY(
+                      setpoint.feedforwards().robotRelativeForcesYNewtons());
             }));
 
     RobotModeTriggers.disabled()
@@ -122,6 +188,8 @@ public class RobotContainer {
             drivetrain.applyRequest(
                 () -> {
                   odometryHealth.setRequestedSpeeds(0.0, 0.0, 0.0);
+                  setpointController.reset(
+                      drivetrain.getState().Speeds, drivetrain.getKinematics());
                   return brake;
                 }));
     driverController.b()
@@ -147,7 +215,7 @@ public class RobotContainer {
         .whileTrue(superstructure.holdGoalCommand(Goal.COLLECTING, Goal.HOLDING_GAME_PIECE));
     driverController
         .leftTrigger()
-        .whileTrue(superstructure.holdGoalCommand(Goal.SCORING, Goal.IDLE));
+        .whileTrue(superstructure.holdGoalCommand(Goal.READY_TO_SCORE, Goal.IDLE));
     driverController.y().onTrue(superstructure.setGoalCommand(Goal.CLIMBING));
     driverController.x().onTrue(superstructure.setGoalCommand(Goal.IDLE));
     driverController
