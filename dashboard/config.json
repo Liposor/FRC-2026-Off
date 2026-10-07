@@ -1,0 +1,14 @@
+{
+  "team": 9200,
+  "server": "",
+  "request_topic": "/Dashboard9200/request",
+  "telemetry": {
+    "enabled": "/Dashboard9200/robot/enabled",
+    "voltage": "/Dashboard9200/robot/voltage",
+    "mode": "/Dashboard9200/robot/mode",
+    "alliance": "/Dashboard9200/robot/alliance",
+    "state": "/Dashboard9200/robot/state",
+    "ack": "/Dashboard9200/ack"
+  },
+  "actions": {"Posicionar": "position", "Intake": "intake", "Recolher": "stow", "Cancelar": "cancel"}
+}
