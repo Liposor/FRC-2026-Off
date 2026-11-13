@@ -31,6 +31,26 @@ const labels = {
   RUNNING: "Em curso", ARRIVED: "Chegou", CANCELLED: "Cancelada", UNAVAILABLE: "Indisponível",
   BLOCKED: "Bloqueada", TIMEOUT: "Tempo esgotado"
 };
+const shiftNames = {
+  AUTO: "Auto", TRANSITION: "Transição", SHIFT_1: "Shift 1", SHIFT_2: "Shift 2",
+  SHIFT_3: "Shift 3", SHIFT_4: "Shift 4", ENDGAME: "Endgame"
+};
+const hubNames = { ACTIVE: "Ativo", INACTIVE: "Inativo", UNKNOWN: "Indefinido" };
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "—";
+  const whole = Math.ceil(seconds);
+  return Math.floor(whole / 60) + ":" + String(whole % 60).padStart(2, "0");
+}
+
+function renderClock(state) {
+  show("match-label", state?.clockSource === "PRACTICE" ? "Partida · treino" : "Partida");
+  show("match-time", formatTime(state?.matchTime));
+  show("shift-name", shiftNames[state?.shift] || "Shift");
+  show("shift-time", formatTime(state?.shiftTime));
+  show("hub-status", state?.shift && state.shift !== "NONE" ? (hubNames[state.hub] || "—") : "—");
+  byId("hub-clock").dataset.hub = state?.hub || "";
+}
 
 const adjustments = [
   ["rpm", "Shooter", " rpm"], ["flap", "Ângulo do flap", "°"],
@@ -130,6 +150,7 @@ function refreshControls() {
 
 function render(latency) {
   const state = snapshot;
+  renderClock(state);
   show("battery", state.battery.toFixed(1) + " V");
   show("ping", Math.round(latency) + " ms");
   show("alliance", { Red: "Vermelha", Blue: "Azul" }[state.alliance] || "—");
@@ -185,6 +206,7 @@ async function poll() {
     connected = false;
     show("connection", "Sem conexão");
     show("ping", "—");
+    renderClock(null);
     show("result", "Reconectando ao roboRIO…");
     byId("dot").classList.remove("online");
     refreshControls();

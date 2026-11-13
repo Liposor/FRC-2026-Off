@@ -31,6 +31,7 @@ O deploy instala o programa, a tela, o layout Elastic e os arquivos do PathPlann
 ## Tela e Elastic
 
 - Na tela, toque no mapa e confirme em **Ir ao destino**. Os quatro botões chamam poses de tiro e as duas rotas chamam trajetos PathPlanner com coleta. Soltar LB interrompe os pedidos da tela. A rotação do destino livre mantém o heading do início do pedido.
+- O cabeçalho mostra o tempo restante do período, o tempo restante do shift e o estado do HUB da aliança. No REBUILT são 20 s de AUTO e 2:20 de TELEOP, com 10 s de transição, quatro shifts de 25 s e 30 s de Endgame. O console usa o relógio da Driver Station. Fora do FMS, se o tempo estiver indisponível, usa um cronômetro identificado como treino. Se faltar Game Data nos shifts 1–4, o HUB aparece como indefinido. Esses indicadores são informativos.
 - Abra **Calibração** desabilitado ou em Test, fora do FMS. O mapa dá lugar aos ajustes de RPM, flap, intake e rolos. Os valores são ajustes em RAM. Para tornar permanentes os valores validados, incorpore-os em `ConfigMechanisms.java`.
 - Antes do primeiro uso do shooter, coloque fisicamente o flap no zero mecânico com o robô desabilitado. Confirme o zero na tela. Repita após desligar ou reinicializar o controlador. O teste armado gira o shooter com o swerve parado e em X. A alimentação de bolas fica bloqueada durante esse teste.
 - No Elastic 2026, use **File → Import Layout** e selecione `src/main/deploy/elastic-layout.json`. O arquivo segue o esquema do Elastic 2026.1.1 e também pode ser baixado em `http://10.92.0.2:5800/elastic-layout.json`. Conecte à equipe 9200 e use as abas **Operação**, **Shooter**, **Mecanismos**, **Swerve** e **Rede e visão**.
@@ -41,7 +42,7 @@ O deploy instala o programa, a tela, o layout Elastic e os arquivos do PathPlann
 | Componente | Configuração |
 | --- | --- |
 | Swerve | Phoenix 6. Mantém `generated/TunerConstants.java` da pasta local, com os offsets dos quatro módulos, CANivore, Pigeon e odometria a 250 Hz. |
-| Intake | Kraken 32 no roboRIO. DIO 0 reporta o encoder absoluto. O controlador 31 do pivô está ausente do código. |
+| Intake | Kraken 32 no roboRIO. Coleta a 85 RPS (5.100 RPM) com teto de 90 RPS na calibração. DIO 0 reporta o encoder absoluto. O controlador 31 do pivô está ausente do código. |
 | Rolos | Kraken 21 inferior, 22 e 23 superiores. O 23 tem inversão de Houston. Rolos superiores têm malha de velocidade em RPS. |
 | Shooter | Kraken 24 e 25, com inversão no 25. Malha de velocidade usa volts, `kV=0,13 V/RPS` e o mapa em RPM de Houston. |
 | Flap | NEO Vortex / Spark Flex 61. Redução 10:1 e curso 0–40°. Ganho inicial 0,04, limite de saída ±18% e corrente 15 A. |
@@ -67,6 +68,7 @@ Os sinais de controle usam leitura não bloqueante e o diagnóstico é escalonad
 - [FRC-2026-Off](https://github.com/Liposor/FRC-2026-Off) · biblioteca de off-season. Revisado o RobotContainer da pasta Swerve.
 - [Team 2910 · SuperStructure](https://github.com/FRCTeam2910/2026CompetitionRobot-Public/blob/main/src/main/java/org/frc2910/robot/subsystems/SuperStructure.java) e [ShooterSubsystem](https://github.com/FRCTeam2910/2026CompetitionRobot-Public/blob/main/src/main/java/org/frc2910/robot/subsystems/shooter/ShooterSubsystem.java) · referência para pedido do operador, estado em execução e liberação do hopper por prontidão. Hardware e implementação do STORM são próprios do projeto.
 - [FIRST · Manual REBUILT](https://firstfrc.blob.core.windows.net/frc2026/Manual/2026GameManual.pdf) · dimensão da zona, G407 e porta 5800 da faixa de equipe.
+- [WPILib · Game Data do REBUILT](https://docs.wpilib.org/en/stable/docs/yearly-overview/2026-game-data.html) · leitura do relógio e identificação do primeiro HUB inativo.
 - [Mapa REBUILT usado pelo Elastic](https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611) · recorte da imagem de campo sem bolas distribuída na instalação Elastic 2026.
 - [Stardust 9200](https://www.frc9200.com/) · referência visual e logotipo do console. A fonte Archivo Black está incluída localmente com sua licença OFL.
 - [PathPlanner · grade](https://pathplanner.dev/gui-navigation-grid-editor.html) e [Limelight · MegaTag2](https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2) · convenções usadas no projeto.

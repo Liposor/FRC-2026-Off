@@ -157,6 +157,54 @@
               "topic": "/SmartDashboard/Storm/Feeding",
               "period": 0.2
             }
+          },
+          {
+            "title": "Partida restante · s",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/TimeSec",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Shift REBUILT",
+            "type": "Large Text Display",
+            "x": 256.0,
+            "y": 512.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/Shift",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Shift restante · s",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/ShiftTimeSec",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "HUB da aliança",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 512.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/Hub",
+              "period": 0.2
+            }
           }
         ]
       }
@@ -628,6 +676,30 @@
             "properties": {
               "topic": "/SmartDashboard/Hardware/Flap61/StickyFaults",
               "period": 1.0
+            }
+          },
+          {
+            "title": "Intake alvo · RPS",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 448.0,
+            "width": 576.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Intake/TargetRPS",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Intake medido · RPS",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 448.0,
+            "width": 576.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Intake/MeasuredRPS",
+              "period": 0.2
             }
           }
         ]

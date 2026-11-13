@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.config.ConfigSwerve;
 import frc.robot.config.FieldTargets;
 import frc.robot.control.Navigation;
+import frc.robot.control.RebuiltMatchClock;
 import frc.robot.control.TouchServer;
 import frc.robot.generated.TunerConstants;
 import frc.robot.localization.OdometryHealthMonitor;
@@ -65,6 +66,7 @@ public final class RobotContainer {
   private final SwerveGeometryCalibrationCommand geometryCalibration =
       new SwerveGeometryCalibrationCommand(drive, odometry::setRequestedSpeeds);
   private final Field2d field = new Field2d();
+  private final RebuiltMatchClock matchClock = new RebuiltMatchClock();
   private final SendableChooser<Goal> chooser = new SendableChooser<>();
   private final SendableChooser<Command> autoChooser;
   private final TouchServer touch =
@@ -157,6 +159,7 @@ public final class RobotContainer {
     state = drive.getState();
     double now = Timer.getFPGATimestamp();
     alliance = DriverStation.getAlliance().orElse(null);
+    var clock = matchClock.read();
     double age = Utils.getCurrentTimeSeconds() - state.Timestamp;
     odometryFresh = state.SuccessfulDaqs > 2 && age >= -0.02 && age < 0.12
         && Double.isFinite(state.Pose.getX()) && Double.isFinite(state.Pose.getY())
@@ -210,7 +213,7 @@ public final class RobotContainer {
     }
     if (now >= nextStatusAt) {
       nextStatusAt = now + 0.1;
-      publishStatus();
+      publishStatus(clock);
     }
   }
 
@@ -451,7 +454,7 @@ public final class RobotContainer {
   }
 
   @SuppressWarnings("unchecked")
-  private void publishStatus() {
+  private void publishStatus(RebuiltMatchClock.Reading clock) {
     superstructure.publish();
     field.setRobotPose(state.Pose);
     field.getObject("Pontos de tiro").setPoses(
@@ -472,10 +475,20 @@ public final class RobotContainer {
     SmartDashboard.putBoolean("Storm/PoseFeedbackFresh", odometryFresh);
     SmartDashboard.putNumber("Storm/RPMTrim", superstructure.rpmTrim());
     SmartDashboard.putNumber("Storm/FlapTrimDeg", superstructure.flapTrim());
+    SmartDashboard.putNumber("Match/TimeSec", clock.matchSeconds());
+    SmartDashboard.putString("Match/Shift", clock.shift().name());
+    SmartDashboard.putNumber("Match/ShiftTimeSec", clock.shiftSeconds());
+    SmartDashboard.putString("Match/Hub", clock.hub().name());
+    SmartDashboard.putString("Match/ClockSource", clock.source().name());
 
     JSONObject data = new JSONObject();
     data.put("battery", battery);
     data.put("alliance", allianceName);
+    data.put("matchTime", clock.matchSeconds());
+    data.put("shift", clock.shift().name());
+    data.put("shiftTime", clock.shiftSeconds());
+    data.put("hub", clock.hub().name());
+    data.put("clockSource", clock.source().name());
     data.put("enabled", DriverStation.isEnabled());
     data.put("teleop", DriverStation.isTeleopEnabled());
     data.put("canCalibrate", !DriverStation.isFMSAttached()

@@ -62,6 +62,19 @@ h3 {
   color: var(--muted);
 }
 .metric strong { font-size: clamp(16px, 2vw, 22px); font-variant-numeric: tabular-nums; }
+.match-clock {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 5px 13px;
+  border-inline: 1px solid var(--line);
+  background: #170e1a;
+}
+.match-clock .metric { min-width: 62px; }
+.match-clock .metric:last-child { min-width: 83px; }
+.hub-clock strong { font-size: 15px; }
+.hub-clock[data-hub="ACTIVE"] strong { color: #a2e8c1; }
+.hub-clock[data-hub="INACTIVE"] strong { color: #ffa69d; }
 .connection { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13px; }
 .dot { width: 8px; height: 8px; background: #ffa69d; border-radius: 50%; }
 .dot.online { background: #a2e8c1; }
@@ -145,6 +158,8 @@ button.stop:hover:not(:disabled) { background: #5c2939; }
   .footer { margin-top: 8px; }
 }
 @media (max-width: 740px) {
+  .topbar { flex-wrap: wrap; column-gap: 13px; }
+  .match-clock { order: 1; width: 100%; justify-content: space-between; }
   .layout { grid-template-columns: 1fr; }
   .connection span:last-child { display: none; }
   .footer { grid-template-columns: repeat(2, 1fr); }

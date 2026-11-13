@@ -144,7 +144,8 @@ public final class Superstructure {
         }
         case COLLECT -> {
           phase = Phase.COLLECTING;
-          intakeTarget = ConfigMechanisms.COLLECT_RPS * intakeScale;
+          intakeTarget = Math.min(ConfigMechanisms.COLLECT_RPS * intakeScale,
+              ConfigMechanisms.MAX_COLLECT_RPS);
           shooter.stop();
         }
         case OUTTAKE -> {
@@ -229,6 +230,8 @@ public final class Superstructure {
     SmartDashboard.putString("Storm/Gate", gate.name());
     SmartDashboard.putBoolean("Storm/Feeding", feed);
     SmartDashboard.putBoolean("Storm/XLock", xConfirmed);
+    SmartDashboard.putNumber("Intake/TargetRPS", intakeTarget);
+    SmartDashboard.putNumber("Intake/MeasuredRPS", intake.speedRps());
     match.publish();
   }
 }

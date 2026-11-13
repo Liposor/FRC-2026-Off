@@ -14,7 +14,8 @@ public final class ConfigMechanisms {
   public static final int LEFT_SHOOTER_ID = 25;
   public static final int FLAP_ID = 61;
 
-  public static final double COLLECT_RPS = 75;
+  public static final double COLLECT_RPS = 85;
+  public static final double MAX_COLLECT_RPS = 90;
   public static final double EJECT_INTAKE_RPS = -35;
   public static final double FEED_UPPER_RPS = 30;
   public static final double EJECT_UPPER_RPS = -15;
