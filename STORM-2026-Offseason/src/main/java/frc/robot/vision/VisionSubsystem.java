@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -35,6 +37,7 @@ public final class VisionSubsystem extends SubsystemBase {
 
   private final CommandSwerveDrivetrain drivetrain;
   private final List<CameraState> cameras = new ArrayList<>();
+  private final HeadingVisionAssist headingAssist = new HeadingVisionAssist();
   private final StatusSignal<Angle> pitch;
   private final StatusSignal<Angle> roll;
   private final StatusSignal<AngularVelocity> yawRate;
@@ -53,6 +56,7 @@ public final class VisionSubsystem extends SubsystemBase {
   private double lastHeadingBeforeResetDegrees = Double.NaN;
   private int successfulHeadingResets;
   private boolean lastAcceptedAfterHeadingReset;
+  private long lastHeadingReferenceRevision;
 
   public VisionSubsystem(CommandSwerveDrivetrain drivetrain) {
     this.drivetrain = drivetrain;
@@ -92,9 +96,31 @@ public final class VisionSubsystem extends SubsystemBase {
     return successfulHeadingResets > 0 && lastAcceptedAfterHeadingReset;
   }
 
+  public void setHeadingAssistEnabled(boolean enabled) {
+    headingAssist.setEnabled(enabled, Timer.getFPGATimestamp());
+  }
+
+  public boolean isHeadingAssistEnabled() {
+    return headingAssist.enabled();
+  }
+
+  public String headingAssistStatus() {
+    return headingAssist.status(Timer.getFPGATimestamp()).name();
+  }
+
+  public double headingAssistOffsetDegrees() {
+    return headingAssist.offsetDegrees();
+  }
+
   @Override
   public void periodic() {
     double nowSeconds = Timer.getFPGATimestamp();
+    headingAssist.setTeleop(DriverStation.isTeleopEnabled(), nowSeconds);
+    long revision = drivetrain.headingReferenceRevision();
+    if (revision != lastHeadingReferenceRevision) {
+      lastHeadingReferenceRevision = revision;
+      headingAssist.resetReference(nowSeconds);
+    }
     // refreshAll e nao bloqueante; o retorno impede o uso de valores antigos do Pigeon.
     var pigeonStatus =
         BaseStatusSignal.refreshAll(false, pitch, roll, yawRate, pitchRate, rollRate);
@@ -110,7 +136,8 @@ public final class VisionSubsystem extends SubsystemBase {
     double yawRateDegreesPerSecond = yawRate.getValue().in(DegreesPerSecond);
     double pitchRateDegreesPerSecond = pitchRate.getValue().in(DegreesPerSecond);
     double rollRateDegreesPerSecond = rollRate.getValue().in(DegreesPerSecond);
-    double fieldYawDegrees = drivetrain.getState().Pose.getRotation().getDegrees();
+    var state = drivetrain.getState();
+    double fieldYawDegrees = state.Pose.getRotation().getDegrees();
     lastFieldYawDegrees = fieldYawDegrees;
     lastYawRateDegreesPerSecond = yawRateDegreesPerSecond;
 
@@ -153,7 +180,39 @@ public final class VisionSubsystem extends SubsystemBase {
       }
     }
 
+    updateHeadingAssist(state, nowSeconds, yawRateDegreesPerSecond);
     publishTelemetryIfDue(nowSeconds);
+  }
+
+  private void updateHeadingAssist(SwerveDriveState state, double now, double pigeonRate) {
+    if (!headingAssist.enabled() || !DriverStation.isTeleopEnabled()
+        || now < mt2LargeCorrectionUntilSeconds
+        || drivetrain.headingReferenceRevision() != lastHeadingReferenceRevision) {
+      return;
+    }
+    double sampledAt = Utils.currentTimeToFPGATime(state.Timestamp);
+    if (state.SuccessfulDaqs <= 2 || !Double.isFinite(sampledAt)
+        || now - sampledAt > ConfigVision.HEADING_ASSIST_MAX_HISTORY_GAP_SECONDS
+        || sampledAt > now + ConfigVision.MAX_FUTURE_TIMESTAMP_SECONDS
+        || !Double.isFinite(state.Pose.getRotation().getRadians())
+        || !Double.isFinite(state.RawHeading.getRadians())) {
+      return;
+    }
+    double yawRate = Math.max(Math.abs(pigeonRate),
+        Math.abs(Math.toDegrees(state.Speeds.omegaRadiansPerSecond)));
+    headingAssist.recordGyro(sampledAt, state.RawHeading, yawRate);
+    if (!headingAssist.beginEvaluation(now, yawRate)) {
+      return;
+    }
+    var gyroToField = state.Pose.getRotation().minus(state.RawHeading);
+    for (CameraState camera : cameras) {
+      camera.io.readHeadingObservation(now)
+          .ifPresent(frame -> headingAssist.consider(frame, gyroToField, now));
+    }
+    double step = headingAssist.finishEvaluation(now);
+    if (step != 0) {
+      drivetrain.applyHeadingCorrection(step);
+    }
   }
 
   private void resetHeadingFromVision(boolean requireMegaTag2) {
@@ -258,7 +317,7 @@ public final class VisionSubsystem extends SubsystemBase {
       double yawRateDegreesPerSecond,
       boolean allowLargeCorrection) {
     // readLatestObservation() e o caminho de localizacao continua do MegaTag2.
-    // MT1 permanece restrito aos metodos de reset, como readHeadingResetSample().
+    // Este caminho aplica apenas a translação do MT2.
     VisionReliability.Result result =
         VisionReliability.evaluate(
             mt2Observation,
@@ -303,6 +362,9 @@ public final class VisionSubsystem extends SubsystemBase {
   }
 
   private void publishTelemetry(double nowSeconds) {
+    SmartDashboard.putBoolean("Vision/HeadingAssist/Enabled", isHeadingAssistEnabled());
+    SmartDashboard.putString("Vision/HeadingAssist/Status", headingAssistStatus());
+    SmartDashboard.putNumber("Vision/HeadingAssist/OffsetDeg", headingAssistOffsetDegrees());
     SmartDashboard.putBoolean("Vision/PigeonHealthy", pigeonHealthy);
     SmartDashboard.putString("Vision/PigeonStatus", pigeonStatusName);
     SmartDashboard.putNumber("Vision/MT2/FieldYawDeg", lastFieldYawDegrees);

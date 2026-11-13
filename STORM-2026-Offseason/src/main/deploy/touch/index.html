@@ -31,6 +31,11 @@
         <canvas id="field" width="1200" height="586" aria-label="Mapa da arena REBUILT, pose, destino e pontos de tiro"></canvas>
         <div class="field-footer">
           <span id="pose">X — &nbsp; Y — &nbsp; θ —</span>
+          <button class="heading-toggle" id="heading-toggle" data-action="heading-on"
+            aria-pressed="false" disabled>
+            <span>Correção de heading por visão</span>
+            <small id="heading-status">Sincronizando…</small>
+          </button>
           <button id="go" class="primary" disabled>Ir ao destino <span aria-hidden="true">↗</span></button>
         </div>
       </article>

@@ -117,6 +117,16 @@ public final class LimelightCameraIO {
     return Optional.of(new VisionHeadingResetSample(config.name(), megaTag1, megaTag2));
   }
 
+  public Optional<VisionObservation> readHeadingObservation(double nowSeconds) {
+    updateHeartbeatAge(nowSeconds);
+    if (nowSeconds - lastHeartbeatChangeSeconds
+            > ConfigVision.HEADING_RESET_MAX_CAMERA_HEARTBEAT_AGE_SECONDS
+        || targetValidEntry.getDouble(0.0) != 1.0) {
+      return Optional.empty();
+    }
+    return parseObservation(megaTag1PoseEntry, MT1_STD_DEV_OFFSET);
+  }
+
   private Optional<VisionObservation> parseObservation(
       DoubleArraySubscriber poseEntry, int stdDevOffset) {
     var frame = poseEntry.getAtomic();

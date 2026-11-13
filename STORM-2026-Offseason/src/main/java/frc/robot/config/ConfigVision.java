@@ -72,6 +72,20 @@ public final class ConfigVision {
   public static final double HEADING_RESET_MAX_MT1_MT2_TIMESTAMP_DIFFERENCE_SECONDS = 0.10;
   public static final double HEADING_RESET_MAX_CAMERA_DISAGREEMENT_DEGREES = 8.0;
 
+  /** Correção de deriva em teleop. Erros grandes continuam a cargo do reset manual. */
+  public static final double HEADING_ASSIST_PERIOD_SECONDS = 0.20;
+  public static final double HEADING_ASSIST_MAX_FRAME_AGE_SECONDS = 0.18;
+  public static final double HEADING_ASSIST_MAX_HISTORY_GAP_SECONDS = 0.08;
+  public static final double HEADING_ASSIST_MAX_YAW_RATE_DEG_PER_SEC = 45.0;
+  public static final double HEADING_ASSIST_MAX_DISTANCE_METERS = 4.5;
+  public static final double HEADING_ASSIST_MAX_AMBIGUITY = 0.20;
+  public static final double HEADING_ASSIST_MAX_ERROR_DEGREES = 20.0;
+  public static final double HEADING_ASSIST_MAX_CAMERA_SPREAD_DEGREES = 5.0;
+  public static final double HEADING_ASSIST_DEADBAND_DEGREES = 0.75;
+  public static final double HEADING_ASSIST_MAX_STEP_DEGREES = 0.60;
+  public static final double HEADING_ASSIST_GAIN = 0.35;
+  public static final double HEADING_ASSIST_HOLD_AFTER_SECONDS = 0.55;
+
   /**
    * Depois de corrigir o heading com MT1, ignora os MT2 ainda calculados com o yaw antigo. Em
    * seguida, abre uma janela curta para o MT2 inicializar X/Y mesmo longe da odometria atual.

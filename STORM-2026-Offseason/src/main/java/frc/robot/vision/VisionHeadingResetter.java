@@ -224,7 +224,7 @@ public final class VisionHeadingResetter {
         qualityWeight);
   }
 
-  private static boolean isGeometricallyPlausible(
+  static boolean isGeometricallyPlausible(
       VisionObservation observation,
       double nowSeconds,
       AprilTagFieldLayout fieldLayout) {

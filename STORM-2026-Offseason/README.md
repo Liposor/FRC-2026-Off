@@ -20,6 +20,7 @@ O deploy instala o programa, a tela, o layout Elastic e os arquivos do PathPlann
 | Piloto · A / B | A trava as rodas em X. B cancela assistência e pedidos da tela. |
 | Piloto · LB / LS | LB redefine a frente para o piloto. LS alterna modo lento. |
 | Piloto · RS / Start + RS | RS corrige o heading com MT1. Com Start, exige confirmação de posição pelo MT2 mesmo com várias tags. Faça parado, com tags visíveis. |
+| Piloto · Y | Alterna a correção gradual de heading por visão. O botão junto ao mapa mostra o mesmo estado. |
 | Piloto · Back | Aplica a pose histórica recomendada, quando disponível. |
 | Piloto · POV direita / esquerda | Inicia/cancela a calibração de geometria do swerve em Test. |
 | Controle 2 · A | Executa o estado selecionado no Elastic enquanto pressionado. |
@@ -59,6 +60,7 @@ Os sinais de controle usam leitura não bloqueante e o diagnóstico é escalonad
 - As quatro poses azuis são `x = 2,75 m`, com `y = 1,50 / 2,65 / 5,40 / 6,55 m`. São espelhadas por rotação de 180° para a aliança vermelha. As duas rotas de coleta foram escolhidas na zona neutra a partir da grade local. Confirme o ponto inicial, a folga em curvas e a altura do intake antes de usar em campo.
 - A pasta local configura a câmera `limelight-front`. Câmeras adicionais entram em `ConfigVision.CAMERAS` quando o nome, a montagem e a calibração estiverem confirmados. O ajuste de −0,14 m foi interpretado no eixo longitudinal do robô, para trás, aplicado a X/Y em MT1 e MT2. Valide o sinal com o robô a 0° e 180°.
 - O MT2 recebe heading e taxas continuamente, com yaw do Pigeon corrigido no referencial do campo. O reset com confirmação de MT2 compara posição, idade e IDs com o MT1. O ângulo absoluto vem do MT1, pois o MT2 usa o próprio yaw do robô como entrada. Depois do reset, segure o robô parado até o painel mostrar **Pose referenciada**.
+- **Correção de heading por visão** começa desligada a cada reboot. Em teleop, compara o yaw de pelo menos duas tags do MT1 com o yaw bruto interpolado do Pigeon no instante da captura, convertido para a referência de campo do Phoenix. Avalia até 5 vezes por segundo, aceita tags a até 4,5 m e giro a até 45°/s, e aplica até 0,6° por avaliação. Resíduos acima de 20° ficam para o reset manual. Quando falta visão ou a função é desligada, a última correção continua na referência do swerve. Os resets manuais e de pose invalidam os frames anteriores e zeram o acumulado mostrado no painel. As constantes estão em `ConfigVision` e os diagnósticos em `/SmartDashboard/Vision/HeadingAssist`.
 - O autônomo padrão é **Parado**. As rotas fornecidas são assistências de teleop. O projeto aceita novos arquivos `.auto` do PathPlanner na pasta de deploy.
 
 ## Referências preservadas
@@ -72,6 +74,7 @@ Os sinais de controle usam leitura não bloqueante e o diagnóstico é escalonad
 - [Mapa REBUILT usado pelo Elastic](https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611) · recorte da imagem de campo sem bolas distribuída na instalação Elastic 2026.
 - [Stardust 9200](https://www.frc9200.com/) · referência visual e logotipo do console. A fonte Archivo Black está incluída localmente com sua licença OFL.
 - [PathPlanner · grade](https://pathplanner.dev/gui-navigation-grid-editor.html) e [Limelight · MegaTag2](https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2) · convenções usadas no projeto.
+- [Orbit 1690 · Kepler](https://www.chiefdelphi.com/t/orbit-1690-2026-robot-reveal-kepler/515277?page=5) · relato de deriva do Pigeon2. [Phoenix 6 · resetRotation](https://api.ctr-electronics.com/phoenix6/stable/java/com/ctre/phoenix6/swerve/SwerveDrivetrain.html#resetRotation(edu.wpi.first.math.geometry.Rotation2d)) · ponto de aplicação da correção de ângulo no STORM.
 
 ## Validação realizada
 

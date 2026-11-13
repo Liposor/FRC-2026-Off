@@ -148,6 +148,8 @@ public final class RobotContainer {
     RobotModeTriggers.disabled().whileTrue(drive.applyRequest(() -> idle).ignoringDisable(true));
     pilot.rightStick().and(pilot.start().negate()).onTrue(vision.resetHeadingFromVisionCommand());
     pilot.rightStick().and(pilot.start()).onTrue(vision.resetHeadingWithMegaTag2ValidationCommand());
+    pilot.y().onTrue(Commands.runOnce(
+        () -> vision.setHeadingAssistEnabled(!vision.isHeadingAssistEnabled())).ignoringDisable(true));
     pilot.leftBumper().onTrue(drive.runOnce(drive::seedFieldCentric));
     pilot.leftStick().onTrue(Commands.runOnce(() -> slowMode = !slowMode));
     pilot.back().onTrue(drive.runOnce(odometry::applyRecommendedRecoveryPose));
@@ -374,6 +376,10 @@ public final class RobotContainer {
       calibrationSpin = false;
       waitForControlRelease = true;
       touchResult = "Pedido da tela cancelado";
+    } else if (action.equals("heading-on") || action.equals("heading-off")) {
+      boolean enabled = action.equals("heading-on");
+      vision.setHeadingAssistEnabled(enabled);
+      touchResult = enabled ? "Correção de heading ligada" : "Correção de heading desligada";
     } else if (action.equals("calibration-off")) {
       superstructure.setCalibration(false);
       calibrationSpin = false;
@@ -495,6 +501,9 @@ public final class RobotContainer {
         && (DriverStation.isDisabled() || DriverStation.isTestEnabled()));
     data.put("remote", remoteHeld());
     data.put("fieldReady", fieldReferenced);
+    data.put("headingAssist", vision.isHeadingAssistEnabled());
+    data.put("headingAssistStatus", vision.headingAssistStatus());
+    data.put("headingAssistOffset", vision.headingAssistOffsetDegrees());
     data.put("calibration", superstructure.calibration());
     data.put("spin", calibrationSpin);
     data.put("rpm", superstructure.rpmTrim());

@@ -145,12 +145,32 @@ function refreshControls() {
   byId("go").disabled = busy || !motion || !snapshot?.fieldReady || !chosen || snapshot?.alliance === "UNKNOWN";
   byId("zero").disabled ||= !!snapshot?.enabled;
   byId("calibration-on").disabled ||= !snapshot?.canCalibrate;
+  byId("heading-toggle").disabled ||= typeof snapshot?.headingAssist !== "boolean";
   field.classList.toggle("armed", !!(motion && snapshot?.fieldReady));
+}
+
+function renderHeading(state) {
+  const button = byId("heading-toggle");
+  if (typeof state?.headingAssist !== "boolean") {
+    show("heading-status", "Sincronizando…");
+    return;
+  }
+  button.dataset.action = state.headingAssist ? "heading-off" : "heading-on";
+  button.setAttribute("aria-pressed", String(state.headingAssist));
+  const status = {
+    OFF: "Desligada", WAITING: state.teleop ? "Aguardando tags" : "Aguardando teleop",
+    TRACKING: "Visão confiável", HOLDING: "Mantendo correção"
+  }[state.headingAssistStatus] || "Sincronizando…";
+  const offset = state.headingAssistOffset;
+  const degrees = Number.isFinite(offset) && Math.abs(offset) >= 0.05
+    ? " · " + (offset > 0 ? "+" : "") + offset.toFixed(1) + "°" : "";
+  show("heading-status", status + degrees);
 }
 
 function render(latency) {
   const state = snapshot;
   renderClock(state);
+  renderHeading(state);
   show("battery", state.battery.toFixed(1) + " V");
   show("ping", Math.round(latency) + " ms");
   show("alliance", { Red: "Vermelha", Blue: "Azul" }[state.alliance] || "—");
@@ -207,6 +227,7 @@ async function poll() {
     show("connection", "Sem conexão");
     show("ping", "—");
     renderClock(null);
+    renderHeading(null);
     show("result", "Reconectando ao roboRIO…");
     byId("dot").classList.remove("online");
     refreshControls();

@@ -39,6 +39,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
   private double lastSimTimeSeconds;
   private boolean hasAppliedOperatorPerspective;
   private boolean pathPlannerConfigured;
+  private long headingReferenceRevision;
   private BooleanSupplier pathMotionBlocked = () -> false;
   private Consumer<ChassisSpeeds> requestedSpeedsObserver = speeds -> {};
   private final SwerveRequest.ApplyRobotSpeeds pathPlannerRequest =
@@ -48,6 +49,34 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
   public void brakeNow() {
     setControl(pathPlannerBrake);
+  }
+
+  public long headingReferenceRevision() {
+    return headingReferenceRevision;
+  }
+
+  @Override
+  public void resetPose(Pose2d pose) {
+    super.resetPose(pose);
+    headingReferenceRevision++;
+  }
+
+  @Override
+  public void resetRotation(Rotation2d rotation) {
+    super.resetRotation(rotation);
+    headingReferenceRevision++;
+  }
+
+  @Override
+  public void seedFieldCentric(Rotation2d rotation) {
+    super.seedFieldCentric(rotation);
+    headingReferenceRevision++;
+  }
+
+  /** Atualiza só a referência angular do Phoenix. O yaw bruto e o X/Y não são escritos. */
+  public void applyHeadingCorrection(double deltaDegrees) {
+    Rotation2d corrected = getState().Pose.getRotation().plus(Rotation2d.fromDegrees(deltaDegrees));
+    super.resetRotation(corrected);
   }
 
   public CommandSwerveDrivetrain(
