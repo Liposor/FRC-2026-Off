@@ -7,6 +7,9 @@ image.src = "field.png";
 image.onload = draw;
 const fieldLength = 16.54;
 const fieldWidth = 8.07;
+const markerColors = {
+  edge: "#100b13", point: "#e3b7f7", route: "#ffe1a3", selection: "#ffffff"
+};
 let snapshot = null;
 let chosen = null;
 let connected = false;
@@ -64,14 +67,14 @@ function marker(pose, color, label) {
   if (!pose) return;
   const [x, y] = xy(pose);
   context.fillStyle = color;
-  context.strokeStyle = "#101923";
+  context.strokeStyle = markerColors.edge;
   context.lineWidth = 4;
   context.beginPath();
   context.arc(x, y, 13, 0, Math.PI * 2);
   context.fill();
   context.stroke();
   if (label) {
-    context.fillStyle = "#0b1118";
+    context.fillStyle = markerColors.edge;
     context.font = "bold 16px Segoe UI";
     context.textAlign = "center";
     context.textBaseline = "middle";
@@ -88,19 +91,19 @@ function draw() {
     context.moveTo(...xy(snapshot.path[0]));
     for (const pose of snapshot.path.slice(1)) context.lineTo(...xy(pose));
     context.lineWidth = 5;
-    context.strokeStyle = "#f7b76b";
+    context.strokeStyle = markerColors.route;
     context.stroke();
   }
-  for (const [index, point] of snapshot.points.entries()) marker(point, "#6bf1c3", index + 1);
-  marker(snapshot.target, "#f7b76b", "");
-  marker(chosen, "#ffffff", "");
+  for (const [index, point] of snapshot.points.entries()) marker(point, markerColors.point, index + 1);
+  marker(snapshot.target, markerColors.route, "");
+  marker(chosen, markerColors.selection, "");
   if (!snapshot.pose || !connected) return;
   const [x, y] = xy(snapshot.pose);
   context.save();
   context.translate(x, y);
   context.rotate(-snapshot.pose[2] * Math.PI / 180);
   context.fillStyle = snapshot.alliance === "Red" ? "#f78484" : "#7dbbff";
-  context.strokeStyle = "#101923";
+  context.strokeStyle = markerColors.edge;
   context.lineWidth = 4;
   context.beginPath();
   context.moveTo(26, 0);
@@ -131,6 +134,7 @@ function render(latency) {
   show("ping", Math.round(latency) + " ms");
   show("alliance", { Red: "Vermelha", Blue: "Azul" }[state.alliance] || "—");
   show("reference", state.fieldReady ? "Pose referenciada" : "Pose sem referência");
+  byId("reference").classList.toggle("ready", state.fieldReady);
   show("connection", "Conectado");
   byId("dot").classList.add("online");
   byId("match").hidden = state.calibration;

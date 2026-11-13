@@ -20,10 +20,12 @@ public final class TouchServer {
   private static final Map<String, String> FILES = Map.of(
       "/", "index.html", "/index.html", "index.html", "/app.js", "app.js",
       "/style.css", "style.css", "/field.png", "field.png",
+      "/stardust.png", "stardust.png", "/archivo-black.ttf", "archivo-black.ttf",
       "/elastic-layout.json", "../elastic-layout.json");
   private static final Map<String, String> MIME = Map.of(
       "html", "text/html; charset=utf-8", "js", "text/javascript; charset=utf-8",
-      "css", "text/css; charset=utf-8", "png", "image/png", "json", "application/json");
+      "css", "text/css; charset=utf-8", "png", "image/png", "json", "application/json",
+      "ttf", "font/ttf");
 
   private final ArrayBlockingQueue<Request> requests = new ArrayBlockingQueue<>(16);
   private final String token = HexFormat.of().formatHex(new SecureRandom().generateSeed(16));

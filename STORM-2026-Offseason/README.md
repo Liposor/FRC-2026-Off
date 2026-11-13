@@ -68,6 +68,7 @@ Os sinais de controle usam leitura não bloqueante e o diagnóstico é escalonad
 - [Team 2910 · SuperStructure](https://github.com/FRCTeam2910/2026CompetitionRobot-Public/blob/main/src/main/java/org/frc2910/robot/subsystems/SuperStructure.java) e [ShooterSubsystem](https://github.com/FRCTeam2910/2026CompetitionRobot-Public/blob/main/src/main/java/org/frc2910/robot/subsystems/shooter/ShooterSubsystem.java) · referência para pedido do operador, estado em execução e liberação do hopper por prontidão. Hardware e implementação do STORM são próprios do projeto.
 - [FIRST · Manual REBUILT](https://firstfrc.blob.core.windows.net/frc2026/Manual/2026GameManual.pdf) · dimensão da zona, G407 e porta 5800 da faixa de equipe.
 - [Mapa REBUILT usado pelo Elastic](https://www.chiefdelphi.com/t/2026-rebuilt-high-resolution-field-image/510611) · recorte da imagem de campo sem bolas distribuída na instalação Elastic 2026.
+- [Stardust 9200](https://www.frc9200.com/) · referência visual e logotipo do console. A fonte Archivo Black está incluída localmente com sua licença OFL.
 - [PathPlanner · grade](https://pathplanner.dev/gui-navigation-grid-editor.html) e [Limelight · MegaTag2](https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2) · convenções usadas no projeto.
 
 ## Validação realizada
