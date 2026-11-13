@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1118">
+  <title>STORM · Console 9200</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="team">9200</span><h1>STORM</h1></div>
+    <div class="metric"><span>Bateria</span><strong id="battery">—</strong></div>
+    <div class="metric"><span>Ping</span><strong id="ping">—</strong></div>
+    <div class="metric"><span>Aliança</span><strong id="alliance">—</strong></div>
+    <div class="connection"><span id="dot" class="dot"></span><span id="connection">Conectando</span></div>
+  </header>
+  <main>
+    <section id="match" class="layout">
+      <article class="panel field-panel">
+        <div class="section-head"><h2>Arena REBUILT</h2><span id="reference">Pose sem referência</span></div>
+        <canvas id="field" width="1200" height="586" aria-label="Mapa da arena REBUILT, pose, destino e pontos de tiro"></canvas>
+        <div class="field-footer">
+          <span id="pose">X — &nbsp; Y — &nbsp; θ —</span>
+          <button id="go" class="primary" disabled>Ir ao destino</button>
+        </div>
+      </article>
+      <aside class="panel controls">
+        <div class="section-head"><h2>Comandos</h2></div>
+        <p class="hint" id="permit">Segure LB no controle 2 para operar pela tela.</p>
+        <div class="buttons">
+          <button data-action="state:COLLECT" data-motion>Coletar</button>
+          <button data-action="state:HOLD" data-motion>Segurar</button>
+          <button data-action="state:SHOOT_HUB" data-motion>Atirar no HUB</button>
+          <button data-action="state:OUTTAKE" data-motion>Ejetar</button>
+        </div>
+        <h3>Pontos de tiro</h3>
+        <div class="buttons four" id="points">
+          <button data-action="point:1" data-motion data-field>1</button>
+          <button data-action="point:2" data-motion data-field>2</button>
+          <button data-action="point:3" data-motion data-field>3</button>
+          <button data-action="point:4" data-motion data-field>4</button>
+        </div>
+        <h3>Rotas de coleta</h3>
+        <div class="buttons" id="routes"></div>
+        <button class="secondary" id="calibration-on" data-action="calibration-on">Calibração</button>
+      </aside>
+    </section>
+    <section class="panel calibration" id="calibration" hidden>
+      <div class="section-head"><h2>Calibração</h2><button data-action="calibration-off">Voltar à arena</button></div>
+      <div class="adjustments" id="adjustments"></div>
+      <div class="calibration-actions">
+        <button id="zero" data-action="flap-zero">Confirmar zero mecânico</button>
+        <button id="spin" data-action="spin">Armar teste do shooter</button>
+      </div>
+      <p class="hint">Confirme o zero com o robô desabilitado e o flap na marca mecânica. Para girar o shooter, habilite e segure RB no controle 2.</p>
+    </section>
+    <footer class="panel footer">
+      <div><span>Fase</span><strong id="phase">—</strong></div>
+      <div><span>Tiro</span><strong id="gate">—</strong></div>
+      <div><span>Bolas</span><strong id="fuel">—</strong></div>
+      <div><span>Rota</span><strong id="nav">—</strong></div>
+      <button class="stop" data-action="stop">Cancelar ação</button>
+      <p id="result" role="status">Aguardando o robô.</p>
+    </footer>
+  </main>
+</body>
+</html>
+

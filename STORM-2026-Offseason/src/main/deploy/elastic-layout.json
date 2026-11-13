@@ -1,0 +1,1193 @@
+{
+  "version": 1.0,
+  "grid_size": 64,
+  "tabs": [
+    {
+      "name": "Operação",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Arena REBUILT",
+            "type": "Field",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 768.0,
+            "height": 512.0,
+            "properties": {
+              "topic": "/SmartDashboard/Campo REBUILT",
+              "period": 0.1,
+              "field_game": "Rebuilt (No Fuel)",
+              "robot_width": 0.762,
+              "robot_length": 0.922,
+              "show_other_objects": true,
+              "show_trajectories": true
+            }
+          },
+          {
+            "title": "Estado solicitado · segure A no controle 2",
+            "type": "ComboBox Chooser",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 128.0,
+            "properties": {
+              "topic": "/SmartDashboard/Estado solicitado",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Autônomo",
+            "type": "ComboBox Chooser",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Autonomo",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Bateria",
+            "type": "Voltage View",
+            "x": 768.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 128.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/BatteryV",
+              "period": 0.2,
+              "min_value": 6.0,
+              "max_value": 13.0
+            }
+          },
+          {
+            "title": "Aliança",
+            "type": "Large Text Display",
+            "x": 1024.0,
+            "y": 192.0,
+            "width": 128.0,
+            "height": 128.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/Alliance",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Fase",
+            "type": "Large Text Display",
+            "x": 768.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/Phase",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Tiro",
+            "type": "Large Text Display",
+            "x": 960.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/Gate",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Bolas",
+            "type": "Large Text Display",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/Fuel",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Rota",
+            "type": "Large Text Display",
+            "x": 960.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/Navigation",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Pose referenciada",
+            "type": "Boolean Box",
+            "x": 768.0,
+            "y": 448.0,
+            "width": 128.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/FieldReferenced",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Rodas em X",
+            "type": "Boolean Box",
+            "x": 896.0,
+            "y": 448.0,
+            "width": 128.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/XLock",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Alimentação",
+            "type": "Boolean Box",
+            "x": 1024.0,
+            "y": 448.0,
+            "width": 128.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/Feeding",
+              "period": 0.2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Shooter",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "RPM medido",
+            "type": "Graph",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 576.0,
+            "height": 256.0,
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/RPM",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "RPM alvo",
+            "type": "Graph",
+            "x": 576.0,
+            "y": 0.0,
+            "width": 576.0,
+            "height": 256.0,
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/TargetRPM",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Flap medido · graus",
+            "type": "Graph",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 192.0,
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/FlapDeg",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Flap alvo · graus",
+            "type": "Graph",
+            "x": 384.0,
+            "y": 256.0,
+            "width": 384.0,
+            "height": 192.0,
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/TargetFlapDeg",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Flap referenciado",
+            "type": "Boolean Box",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Shooter/FlapReferenced",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Ajuste RPM",
+            "type": "Large Text Display",
+            "x": 960.0,
+            "y": 256.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/RPMTrim",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Ajuste flap",
+            "type": "Large Text Display",
+            "x": 768.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Storm/FlapTrimDeg",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Eventos de coleta",
+            "type": "Large Text Display",
+            "x": 960.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/PickupEvents",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Eventos de tiro",
+            "type": "Large Text Display",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/LaunchEvents",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Último tiro · s FPGA",
+            "type": "Large Text Display",
+            "x": 960.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Match/LastLaunchSec",
+              "period": 0.2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Mecanismos",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Intake · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Intake32/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Intake32/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Intake32/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 0.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Intake32/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Rolo inferior · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 64.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller21/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 64.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller21/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 64.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller21/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 64.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller21/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Rolo superior E · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller22/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller22/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller22/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 128.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller22/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Rolo superior D · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller23/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller23/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller23/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 192.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Roller23/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Shooter D · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter24/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter24/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter24/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter24/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Shooter E · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 320.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter25/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter25/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter25/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 320.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Shooter25/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Flap · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Flap61/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Flap61/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Flap61/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/Flap61/StickyFaults",
+              "period": 1.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Swerve",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "FL tração · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLDrive/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLDrive/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLDrive/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 0.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLDrive/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "FL direção · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 64.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLSteer/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 64.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLSteer/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 64.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLSteer/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 64.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FLSteer/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "FR tração · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRDrive/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRDrive/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRDrive/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 128.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRDrive/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "FR direção · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRSteer/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRSteer/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRSteer/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 192.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/FRSteer/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "BL tração · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLDrive/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLDrive/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLDrive/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLDrive/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "BL direção · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 320.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLSteer/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLSteer/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLSteer/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 320.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BLSteer/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "BR tração · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRDrive/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRDrive/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRDrive/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRDrive/StickyFaults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "BR direção · °C",
+            "type": "Large Text Display",
+            "x": 0.0,
+            "y": 448.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRSteer/TemperatureC",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "CAN",
+            "type": "Large Text Display",
+            "x": 320.0,
+            "y": 448.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRSteer/CAN",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas",
+            "type": "Large Text Display",
+            "x": 576.0,
+            "y": 448.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRSteer/Faults",
+              "period": 1.0
+            }
+          },
+          {
+            "title": "Falhas retidas",
+            "type": "Large Text Display",
+            "x": 832.0,
+            "y": 448.0,
+            "width": 320.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Hardware/BRSteer/StickyFaults",
+              "period": 1.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Rede e visão",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Intervalo do loop · máximo ms",
+            "type": "Graph",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 192.0,
+            "properties": {
+              "topic": "/SmartDashboard/Performance/MaxLoopIntervalMs",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Scheduler · máximo ms",
+            "type": "Graph",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 192.0,
+            "properties": {
+              "topic": "/SmartDashboard/Performance/SchedulerMaxMs",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Superestrutura · máximo ms",
+            "type": "Graph",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 192.0,
+            "properties": {
+              "topic": "/SmartDashboard/Performance/SuperstructureMaxMs",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Utilização CANivore · %",
+            "type": "Graph",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 384.0,
+            "height": 192.0,
+            "properties": {
+              "topic": "/SmartDashboard/Performance/CanUtilizationPercent",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Estado CANivore",
+            "type": "Large Text Display",
+            "x": 384.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Performance/CanStatus",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Erros RX",
+            "type": "Large Text Display",
+            "x": 640.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Performance/CanReceiveErrors",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Erros TX",
+            "type": "Large Text Display",
+            "x": 896.0,
+            "y": 192.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Performance/CanTransmitErrors",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Status Pigeon",
+            "type": "Large Text Display",
+            "x": 384.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Vision/PigeonStatus",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Reset heading",
+            "type": "Large Text Display",
+            "x": 640.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Vision/HeadingReset/LastReason",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Fonte do heading",
+            "type": "Large Text Display",
+            "x": 896.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Vision/HeadingReset/Source",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Frames aceitos",
+            "type": "Large Text Display",
+            "x": 384.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Vision/AcceptedFrames",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Frames rejeitados",
+            "type": "Large Text Display",
+            "x": 640.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Vision/RejectedFrames",
+              "period": 0.2
+            }
+          },
+          {
+            "title": "Encoder do pivô (DIO 0)",
+            "type": "Large Text Display",
+            "x": 896.0,
+            "y": 320.0,
+            "width": 256.0,
+            "height": 64.0,
+            "properties": {
+              "topic": "/SmartDashboard/Intake/PivotAbsolute",
+              "period": 0.2
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
